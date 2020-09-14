@@ -13,8 +13,9 @@ def pull_json(link, split=True):
     if (r.ok): 
         sleep(1)
         return json.loads(r.content)
-    print(link)
-    raise RuntimeError(r.content)
+    else:
+        print(link)
+        raise RuntimeError(r.content)
 
 def get_info(repo):
     try:
@@ -25,13 +26,18 @@ def get_info(repo):
             issues = pull_json(repoItem['issues_url'])
         else:
             issues = None
+        # Tags has lots of useless info, we just want the names
         tags = pull_json(repoItem['tags_url'])
+        tags = [x['name'] for x in tags]
         # Labels has lots of useless info, we just want the names
         labels = pull_json(repoItem['labels_url'])
         labels = [x['name'] for x in labels]
         # Languages are in the json's keys
         langs = pull_json(repoItem['languages_url'], split=False)
         langs = list(langs.keys())
+        # If the language is list is empty, use the main repo language
+        if len(langs) == 0:
+            langs = [repoItem['language']]
 
         return {
             'page': repoItem['html_url'],
@@ -89,6 +95,4 @@ def append_repo_info(df='commits_cleaned.csv'):
 if __name__ == "__main__":
     # append_repo_info()
     test()
-    df = pd.read_csv('commits_cleaned.csv')
-    print(df['repo_name'].nunique())
 
