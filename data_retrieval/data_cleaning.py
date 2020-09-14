@@ -1,7 +1,7 @@
 import pandas as pd
 import ast
 
-def clean_data(df='commits.csv', repo_freq=3):
+def clean_data(df='../commits.csv', new_file='commits_cleaned.csv', repo_freq=3):
     print('\nCLEANING THE DATA FROM GITHUB')
     # Read file in if it is a file name
     if isinstance(df, str):
@@ -54,7 +54,7 @@ def clean_data(df='commits.csv', repo_freq=3):
     # Remove repos that don't appear the often
     df = df[df.groupby('repo_name')['repo_name'].transform('count') >= repo_freq] 
     # Save the data
-    df.to_csv('commits_cleaned.csv', index=False)
+    df.to_csv(new_file, index=False)
     print(df.head())
     print(df.shape)
 

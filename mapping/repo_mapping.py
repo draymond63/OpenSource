@@ -21,10 +21,13 @@ def find_popular_repos(df='commits_cleaned.csv'):
     count = pd.DataFrame(count)
     count.sort_values('users', ascending=False, inplace=True)
 
-    print(count.head())
+    print(count['repo_name'].head(15))
     print(count.shape)
     return count
 
+def map_repos(df='commits_cleaned.csv'):
+    pass
+
 
 if __name__ == "__main__":
-    find_popular_repos()
+    pop_repos = find_popular_repos()
