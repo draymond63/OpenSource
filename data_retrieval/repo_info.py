@@ -1,61 +1,94 @@
 import pandas as pd
 import requests
 import json
+from time import sleep
+from tqdm import tqdm
 
-def pull_json(link):
+def pull_json(link, split=True):
+    # Split on { because the url has a template bit at the end that we don't want
+    if split:
+        link = link.split('{')[0]
+    # Initiate the request
     r = requests.get(link)
     if (r.ok): 
+        sleep(1)
         return json.loads(r.content)
-    raise RuntimeWarning(f'Link was not okay: {link}')
+    print(link)
+    raise RuntimeError(r.content)
 
 def get_info(repo):
-    repoItem = pull_json(f'https://api.github.com/repos/{repo}')
-    user_url = repoItem['html_url']
-    desc = repoItem['description']
-    watchers = repoItem['watchers']
+    try:
+        # Main request that gathers most of the info
+        repoItem = pull_json(f'https://api.github.com/repos/{repo}')
+        # Pull the issues if possible
+        if repoItem['has_issues']:
+            issues = pull_json(repoItem['issues_url'])
+        else:
+            issues = None
+        tags = pull_json(repoItem['tags_url'])
+        # Labels has lots of useless info, we just want the names
+        labels = pull_json(repoItem['labels_url'])
+        labels = [x['name'] for x in labels]
+        # Languages are in the json's keys
+        langs = pull_json(repoItem['languages_url'], split=False)
+        langs = list(langs.keys())
 
-    tags = pull_json(repoItem['tags_url'].split('{')[0])
-    labels = pull_json(repoItem['labels_url'].split('{')[0])
-    labels = [x['name'] for x in labels]
-
-    langs = pull_json(repoItem['languages_url'])
-    langs = list(langs.keys())
-
-
-    # labels_url, clone_url, watchers, language, has_issues, has_wiki, archived, 
-
-    return {
-        'page': user_url,
-        'description': desc,
-        'tags': tags,
-        'languages': langs,
-        'watchers': watchers,
-        'labels': labels
-    }
-
-
+        return {
+            'page': repoItem['html_url'],
+            'description': repoItem['description'],
+            'watchers': repoItem['watchers'],
+            'tags': tags,
+            'languages': langs,
+            'labels': labels,
+            'issues': issues
+        }
+    except RuntimeError as e:
+        print(e)
+        return False
+ 
 def test():
     test_repos = [
-        # 'chromium/chromium',
+        'chromium/chromium',
         # 'apple/llvm-project',
         # 'jrfastab/hardware_maps',
         # 'Pingmin/linux',
         # 'dwindsor/linux-next',
         # 'xorware/android_frameworks_base',
         # 'jrobhoward/SCADAbase',
-        'linux-rockchip/linux-rockchip',
+        # 'linux-rockchip/linux-rockchip',
         # 'GuoqingJiang/SLE12-clustermd',
     ]
 
     for repo in test_repos:
         data = get_info(repo)
-        print(data)
+        print(data) 
 
-def append_repo_info(df='../commits_cleaned.csv'):
+# ! TAKES WAY TOO LONG
+def append_repo_info(df='commits_cleaned.csv'):
     if isinstance(df, str):
         df = pd.read_csv(df)
 
+    repo_info = {}
+    for index, repo in tqdm(enumerate(df['repo_name'].unique())):
+        data = get_info(repo)
+        sleep(1)
+        # If the data wasn't retrieved, wait for it
+        while not data:
+            sleep(30)
+            data = get_info(repo)
+
+        repo_info[index] = data
+
+    data = pd.DataFrame.from_dict(repo_info, orient='index')
+
+    data.to_csv('repo_data.csv')
+
+    print(data.head())
+
 
 if __name__ == "__main__":
+    # append_repo_info()
     test()
+    df = pd.read_csv('commits_cleaned.csv')
+    print(df['repo_name'].nunique())
 
