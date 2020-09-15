@@ -26,24 +26,18 @@ def get_info(repo):
             issues = pull_json(repoItem['issues_url'])
         else:
             issues = None
-        # Tags has lots of useless info, we just want the names
-        tags = pull_json(repoItem['tags_url'])
-        tags = [x['name'] for x in tags]
         # Labels has lots of useless info, we just want the names
         labels = pull_json(repoItem['labels_url'])
         labels = [x['name'] for x in labels]
         # Languages are in the json's keys
         langs = pull_json(repoItem['languages_url'], split=False)
         langs = list(langs.keys())
-        # If the language is list is empty, use the main repo language
-        if len(langs) == 0:
-            langs = [repoItem['language']]
 
         return {
             'page': repoItem['html_url'],
             'description': repoItem['description'],
             'watchers': repoItem['watchers'],
-            'tags': tags,
+            'main_lang': repoItem['language'],
             'languages': langs,
             'labels': labels,
             'issues': issues
@@ -54,8 +48,8 @@ def get_info(repo):
  
 def test():
     test_repos = [
-        'chromium/chromium',
-        # 'apple/llvm-project',
+        # 'chromium/chromium',
+        'apple/llvm-project',
         # 'jrfastab/hardware_maps',
         # 'Pingmin/linux',
         # 'dwindsor/linux-next',
