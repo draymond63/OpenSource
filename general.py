@@ -4,6 +4,7 @@ from time import sleep
 
 DUMP_REPO_FILE = 'repos.csv'
 REPO_FILE = 'repos_cleaned.csv'
+CONTRIBUTORS_COLUMN = 'contributors'
 
 with open('secrets.json') as f:
     secrets = json.load(f)

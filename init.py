@@ -1,5 +1,5 @@
-from pull_users import append_contributors
 from data_cleaning import init_clean, append_activity, remove_inactive
+from pull_users import append_contributors
 
 
 if __name__ == "__main__":

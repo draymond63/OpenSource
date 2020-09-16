@@ -1,14 +1,13 @@
 import pandas as pd
 from time import sleep
 from tqdm import tqdm
-from general import pull_json, url_to_repo, REPO_FILE
+from general import pull_json, REPO_FILE, CONTRIBUTORS_COLUMN
 
-def get_contributors(repo_url, pause=0, ret_string=True):
-    name = url_to_repo(repo_url)
-    if not name:
+def get_contributors(repo_name, pause=0, ret_string=True):
+    if not repo_name:
         return None
     # Make the request
-    try: repoItem = pull_json(f'https://api.github.com/repos/{name}/contributors')
+    try: repoItem = pull_json(f'https://api.github.com/repos/{repo_name}/contributors')
     except: return None
     # Optional wait
     sleep(pause)
@@ -26,8 +25,9 @@ def append_contributors(repo_file=REPO_FILE):
     # Iterate through the repos, getting the contributors
     contributors = [get_contributors(url) for url in tqdm(df['repository_url'])]
     # Merge in the new data
-    contributors = pd.Series(contributors, name='contributors')
+    contributors = pd.Series(contributors, name=CONTRIBUTORS_COLUMN)
     df = df.join(contributors)
+    df.dropna(subset=[CONTRIBUTORS_COLUMN], inplace=True)
     df.to_csv(repo_file, index=False)
     print(df.head())
 
