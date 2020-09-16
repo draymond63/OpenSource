@@ -1,7 +1,7 @@
 import pandas as pd
 import requests
 from tqdm import tqdm
-from general import pull_json, url_to_repo, DUMP_REPO_FILE, REPO_FILE
+from OpenSource.general import pull_json, url_to_repo, DUMP_REPO_FILE, REPO_FILE
 
 def init_clean(repo_file=REPO_FILE, new_file=REPO_FILE):
     df = pd.read_csv(repo_file)

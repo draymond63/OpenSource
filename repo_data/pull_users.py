@@ -1,7 +1,7 @@
 import pandas as pd
 from time import sleep
 from tqdm import tqdm
-from general import pull_json, REPO_FILE, CONTRIBUTORS_COLUMN
+from OpenSource.general import pull_json, REPO_FILE, CONTRIBUTORS_COLUMN
 
 def get_contributors(repo_name, pause=0, ret_string=True):
     if not repo_name:

@@ -1,5 +1,5 @@
 import pandas as pd
-from general import REPO_FILE, USER_FILE, CONTRIBUTORS_COLUMN
+from OpenSource.general import REPO_FILE, USER_FILE, CONTRIBUTORS_COLUMN
 
 # Move from repo rows to user rows
 def repos_to_users(repo_file=REPO_FILE, new_file=USER_FILE, user_col=CONTRIBUTORS_COLUMN):
