@@ -8,7 +8,8 @@ def get_contributors(repo_url, pause=0, ret_string=True):
     if not name:
         return None
     # Make the request
-    repoItem = pull_json(f'https://api.github.com/repos/{name}/contributors')
+    try: repoItem = pull_json(f'https://api.github.com/repos/{name}/contributors')
+    except: return None
     # Optional wait
     sleep(pause)
     # Make sure there is actually data to parse
@@ -19,7 +20,7 @@ def get_contributors(repo_url, pause=0, ret_string=True):
     else:
         return None
 
-# * Takes approximately seven minutes
+# * Takes approximately 7-8 minutes
 def append_contributors(repo_file=REPO_FILE):
     df = pd.read_csv(repo_file)
     # Iterate through the repos, getting the contributors
@@ -28,7 +29,7 @@ def append_contributors(repo_file=REPO_FILE):
     contributors = pd.Series(contributors, name='contributors')
     df = df.join(contributors)
     df.to_csv(repo_file, index=False)
-   
+    print(df.head())
 
 if __name__ == "__main__":
     append_contributors()
