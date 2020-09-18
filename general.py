@@ -16,6 +16,7 @@ def pull_json(link, redo=False, delay=30):
     r = requests.get(link, auth=('user', secrets['token']))
     # Make sure data is okay
     if redo:
+        # Try again a few times
         timeout = 3
         while (not r.ok and timeout):
             print(link)
@@ -28,6 +29,11 @@ def pull_json(link, redo=False, delay=30):
     if r.ok:
         return json.loads(r.content)
     else:
+        # Check the status
+        status = git_api_status()
+        if status['remaining'] == 0:
+            raise AssertionError(f'Run out of requests, {status}')
+        # If something else is wrong, then just return None
         print(link)
         return None
 
@@ -44,3 +50,11 @@ def url_to_repo(repo_url):
         print(name)
         return None
     return name
+
+def git_api_status():
+    response = pull_json('https://api.github.com/rate_limit')
+    return response['resources']['core']
+
+
+if __name__ == '__main__':
+    print(git_api_status())
