@@ -31,10 +31,7 @@ def repos_to_users(repo_file=REPO_FILE, new_file=REPO_TO_USER_FILE, user_col=CON
     #     nums = user.drop('repos')
     #     total = sum(user.drop('repos'))
     #     nums /= total
-        
-
-    user_data = user_data.sort_values('HTML', ascending=False) 
-
+    
     user_data.to_csv(new_file)
     print(user_data.head())
     

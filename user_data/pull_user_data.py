@@ -50,5 +50,6 @@ def pull_user_data(repo_file=REPO_TO_USER_FILE, user_file=USER_FILE):
 
 if __name__ == "__main__":
     pull_user_data()
-    df = pd.read_csv('user_info.csv', index_col='Unnamed: 0')
-    print(df)
+    # data = pd.read_csv(USER_FILE, index_col='Unnamed: 0')
+    # print(data.head())
+    # print(data.shape)

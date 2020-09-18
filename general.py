@@ -2,13 +2,15 @@ import requests
 import json
 from time import sleep
 
-DUMP_REPO_FILE = 'repos.csv'
-REPO_FILE = 'repos_cleaned.csv'
-REPO_TO_USER_FILE ='user_info.json'
-USER_FILE = 'user_info.csv'
+DUMP_REPO_FILE = 'storage/repos.csv'
+REPO_FILE = 'storage/repos_cleaned.csv'
+REPO_TO_USER_FILE = 'storage/repo_users.csv'
+USER_FILE = 'storage/pulled_user_info.csv'
+SECRET_FILE = 'storage/secrets.json'
+
 CONTRIBUTORS_COLUMN = 'contributors'
 
-with open('secrets.json') as f:
+with open(SECRET_FILE) as f:
     secrets = json.load(f)
 
 def pull_json(link, redo=False, delay=30):
