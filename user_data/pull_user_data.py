@@ -13,7 +13,7 @@ def extract_wanted(repos: list, langs: list) -> list:
             data[repo['language']] += commits
     return data
 
-def get_user(users, langs):
+def get_users(users, langs):
     user_data = {}
     # Get info on each user
     for user in tqdm(users):
@@ -38,7 +38,7 @@ def pull_user_data(repo_file=REPO_TO_USER_FILE, user_file=USER_FILE):
         users = list(df.index)
     langs = list(df.drop('repos', axis=1).columns)
     # Pull all the data
-    new_data = get_user(users, langs)
+    new_data = get_users(users, langs)
     # Add the user's repos
     new_data = pd.DataFrame.from_dict(new_data, orient='index')
     new_data = new_data.join(df['repos'])
@@ -49,7 +49,7 @@ def pull_user_data(repo_file=REPO_TO_USER_FILE, user_file=USER_FILE):
     new_data.to_csv(user_file)
 
 if __name__ == "__main__":
-    pull_user_data()
-    # data = pd.read_csv(USER_FILE, index_col='Unnamed: 0')
-    # print(data.head())
-    # print(data.shape)
+    # pull_user_data()
+    data = pd.read_csv(USER_FILE, index_col='Unnamed: 0')
+    print(data.head())
+    print(data.shape)
