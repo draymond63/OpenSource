@@ -6,6 +6,7 @@ DUMP_REPO_FILE = 'storage/repos.csv'
 REPO_FILE = 'storage/repos_cleaned.csv'
 REPO_TO_USER_FILE = 'storage/repo_users.csv'
 USER_FILE = 'storage/pulled_user_info.csv'
+NN_OUTPUT = 'storage/nn_compl_output.csv'
 SECRET_FILE = 'storage/secrets.json'
 
 CONTRIBUTORS_COLUMN = 'contributors'

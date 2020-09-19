@@ -2,7 +2,7 @@ import pandas as pd
 from tqdm import tqdm
 from OpenSource.general import REPO_FILE, REPO_TO_USER_FILE, CONTRIBUTORS_COLUMN
 
-# Move from repo rows to user rows
+# * Move from repo rows to user rows
 def repos_to_users(repo_file=REPO_FILE, new_file=REPO_TO_USER_FILE, user_col=CONTRIBUTORS_COLUMN):
     df = pd.read_csv(repo_file)
 
@@ -24,16 +24,21 @@ def repos_to_users(repo_file=REPO_FILE, new_file=REPO_TO_USER_FILE, user_col=CON
                 user_data[user]['repos'] += ',' + repo_name
             # Increase the strength of the language for the user
             user_data[user][lang] += 1
-
     user_data = pd.DataFrame.from_dict(user_data, orient='index')
-    # Normalize language strengths
-    # for _, user in tqdm(user_data.iterrows()):
-    #     nums = user.drop('repos')
-    #     total = sum(user.drop('repos'))
-    #     nums /= total
     
-    user_data.to_csv(new_file)
-    print(user_data.head())
+    # * Normalize language strengths
+    data = user_data.drop('repos', axis=1)
+    count = {}
+    for i, user in data.iterrows():
+        count[i] = user.sum()
+        data.loc[i] = user.div(count[i])
+    # Reattach the repos and counts
+    count = pd.Series(count, name='repo_count')
+    data = data.join(count)
+    data = data.join(user_data['repos'])
+
+    data.to_csv(new_file)
+    print(data.head())
     
 
 if __name__ == "__main__":

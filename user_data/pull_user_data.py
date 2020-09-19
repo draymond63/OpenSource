@@ -9,8 +9,10 @@ def extract_wanted(repos: list, langs: list) -> list:
     for repo in repos:
         if not repo['fork'] and repo['language'] in langs:
             # Pull in the number of commits for that repo
-            commits = len(pull_json(f'https://api.github.com/repos/{repo["full_name"]}/commits'))
-            data[repo['language']] += commits
+            try:
+                commits = len(pull_json(f'https://api.github.com/repos/{repo["full_name"]}/commits'))
+                data[repo['language']] += commits
+            except: pass
     return data
 
 def get_users(users, langs):
@@ -27,11 +29,11 @@ def get_users(users, langs):
     return user_data
 
 # * Creates a new dataset from the users in the repo file
-def pull_user_data(repo_file=REPO_TO_USER_FILE, user_file=USER_FILE):
+def pull_user_data(repo_file=REPO_TO_USER_FILE, user_file=USER_FILE, overwrite=False):
     # Get list of users and languages
     df = pd.read_csv(repo_file, index_col='Unnamed: 0')
     # Append the current file instead of overwritting it, if possible
-    if isfile(user_file):
+    if isfile(user_file) and not overwrite:
         data = pd.read_csv(user_file, index_col='Unnamed: 0')
         users = [x for x in list(df.index) if x not in list(data.index)]
     else:
@@ -49,7 +51,9 @@ def pull_user_data(repo_file=REPO_TO_USER_FILE, user_file=USER_FILE):
     new_data.to_csv(user_file)
 
 if __name__ == "__main__":
-    # pull_user_data()
+    pull_user_data()
     data = pd.read_csv(USER_FILE, index_col='Unnamed: 0')
     print(data.head())
     print(data.shape)
+
+    # MESSED UP https://api.github.com/repos/AArnott/Clue/commits
