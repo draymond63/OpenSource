@@ -1,8 +1,10 @@
-from OpenSource.general import pull_json
+from OpenSource.general import pull_json, REPO_FILE
 from tqdm import tqdm
 import pandas as pd
 
-def get_repo_query(key, language=None, forks='>=200', sort='stars', pushed='>=2020-09-01', help_wanted_issues='>=5', good_first_issues='>=5', per_page=100):    
+# https://docs.github.com/en/github/searching-for-information-on-github/searching-for-repositories
+# https://docs.github.com/en/rest/reference/search#search-repositories
+def get_repo_query(key, language=None, forks='>=200', sort='stars', pushed='>=2020-09-01', help_wanted_issues='>=5', good_first_issues='>=5', per_page=100):   
     q = {
         'q': key,
         'language': language,
@@ -22,33 +24,32 @@ def get_repo_query(key, language=None, forks='>=200', sort='stars', pushed='>=20
         for repo in response['items']:
             data[repo['full_name']] = {
                 'html_url': repo['html_url'],
-                'language': language,
-                'collaborators_url': repo['collaborators_url'].split('{')[0],
+                'language': repo['language'] if repo['language'] else (language if language else key),
                 'last_active': repo['pushed_at']
             }
         return data
     else:
         raise Warning(f'response was faulty: {response}')
 
-def get_repo_data():
+def get_repo_data(repo_file=REPO_FILE):
     langs = [
         'JavaScript', 'Python', 'HTML', 'CSS', 'C++', 
         'TypeScript', 'Rust', 'Scheme', 'Java',  
         'Kotlin', 'C#', 'Perl', 'PHP', 'Scala', 
-        'Swift', 'MATLAB', 'SQL', 'R', 'Go', 'Ruby'
+        'Swift', 'MATLAB', 'SQL', 'R', 'Go', 'Ruby',
+        'Hascal'
     ]
-
     data = {}
     for lang in tqdm(langs):
         r = get_repo_query(lang)
         data.update(r)
 
     data = pd.DataFrame.from_dict(data, orient='index')
+    # Shift the index to a regular column
+    data.reset_index(inplace=True)
+    data.rename(columns={'index': 'repo_name'}, inplace=True)
     print(data.head())
-    data.to_csv('storage/new_repos.csv')
+    data.to_csv(repo_file, index=False)
 
 if __name__ == "__main__":
-    # get_repo_data()
-    data = pd.read_csv('storage/new_repos.csv')
-    print(data.head())
-    print(data.shape)
+    get_repo_data()

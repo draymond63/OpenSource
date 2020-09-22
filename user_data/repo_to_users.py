@@ -1,9 +1,9 @@
 import pandas as pd
 from tqdm import tqdm
-from OpenSource.general import REPO_FILE, REPO_TO_USER_FILE, CONTRIBUTORS_COLUMN
+from OpenSource.general import REPO_FILE, USER_LIST, CONTRIBUTORS_COLUMN
 
 # * Move from repo rows to user rows
-def repos_to_users(repo_file=REPO_FILE, new_file=REPO_TO_USER_FILE, user_col=CONTRIBUTORS_COLUMN):
+def repos_to_users(repo_file=REPO_FILE, new_file=USER_LIST, user_col=CONTRIBUTORS_COLUMN):
     df = pd.read_csv(repo_file)
 
     # Gather list of languages
@@ -37,7 +37,7 @@ def repos_to_users(repo_file=REPO_FILE, new_file=REPO_TO_USER_FILE, user_col=CON
     data = data.join(count)
     data = data.join(user_data['repos'])
 
-    data.to_csv(new_file)
+    # data.to_csv(new_file)
     print(data.head())
     
 

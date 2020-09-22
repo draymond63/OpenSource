@@ -1,4 +1,5 @@
-from repo_data.data_cleaning import init_clean, append_activity, remove_inactive
+from repo_data.pull_repos import get_repo_data
+from repo_data.data_cleaning import remove_inactive
 from repo_data.pull_users import append_contributors
 
 from user_data.repo_to_users import repos_to_users
@@ -13,13 +14,12 @@ TRAIN_NN = True
 
 if __name__ == "__main__":
     if GATHER_REPO_INFO:
-        init_clean()
-        append_activity()
+        get_repo_data()
         remove_inactive()
         append_contributors()
     if REPO_TO_USER_INFO:
         repos_to_users()
-        # nn_recommender
+        
     if GATHER_USER_INFO:
         pull_user_data()
     if TRAIN_NN:

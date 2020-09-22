@@ -2,11 +2,9 @@ import requests
 import json
 from time import sleep
 
-DUMP_REPO_FILE = 'storage/repos.csv'
-REPO_FILE = 'storage/repos_cleaned.csv'
-REPO_TO_USER_FILE = 'storage/repo_users.csv'
-USER_FILE = 'storage/pulled_user_info.csv'
-NN_OUTPUT = 'storage/nn_compl_output.csv'
+REPO_FILE = 'storage/pulled_repos.csv'
+USER_LIST = 'storage/repo_users.csv'
+USER_FILE = 'storage/pulled_users_info.csv'
 SECRET_FILE = 'storage/secrets.json'
 
 CONTRIBUTORS_COLUMN = 'contributors'
@@ -40,19 +38,6 @@ def pull_json(link, query=None, headers=None, redo=False, delay=30):
         print(link)
         return None
 
-def url_to_repo(repo_url):
-    # Extract name from the url
-    if not isinstance(repo_url, str):
-        return None
-    # Try and take the ur-end, if not possible it's bad data
-    try: name = repo_url.split('com/')[1]
-    except: return None
-    name = name.split('.git')[0]
-    # Make sure there's only two values: user & repo
-    if len(name.split('/')) != 2:
-        print(name)
-        return None
-    return name
 
 def git_api_status(stype='core'):
     response = pull_json('https://api.github.com/rate_limit')
