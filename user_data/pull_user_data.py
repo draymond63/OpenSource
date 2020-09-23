@@ -1,18 +1,15 @@
 import pandas as pd
 from tqdm import tqdm
 from os.path import isfile
-from OpenSource.general import pull_json, USER_FILE, REPO_TO_USER_FILE, CONTRIBUTORS_COLUMN
+from OpenSource.general import pull_json, USER_FILE, USER_LIST, CONTRIBUTORS_COLUMN, NAME_COLUMN
 
 # * Get wanted data from user repo request
 def extract_wanted(repos: list, langs: list) -> list:
     data = {l: 0 for l in langs}
     for repo in repos:
         if not repo['fork'] and repo['language'] in langs:
-            # Pull in the number of commits for that repo
-            try:
-                commits = len(pull_json(f'https://api.github.com/repos/{repo["full_name"]}/commits'))
-                data[repo['language']] += commits
-            except: pass
+            # Add the number of kilobytes (rough approximation for how much they've coded)
+            data[repo['language']] += repo['size']
     return data
 
 def get_users(users, langs):
@@ -29,26 +26,27 @@ def get_users(users, langs):
     return user_data
 
 # * Creates a new dataset from the users in the repo file
-def pull_user_data(repo_file=REPO_TO_USER_FILE, user_file=USER_FILE, overwrite=False):
+def pull_user_data(repo_info=USER_LIST, user_file=USER_FILE, overwrite=False):
     # Get list of users and languages
-    df = pd.read_csv(repo_file, index_col='Unnamed: 0')
+    df = pd.read_csv(repo_info)
+    users = list(df['user'].unique())
+    langs = list(df['language'].unique())
     # Append the current file instead of overwritting it, if possible
     if isfile(user_file) and not overwrite:
-        data = pd.read_csv(user_file, index_col='Unnamed: 0')
-        users = [x for x in list(df.index) if x not in list(data.index)]
-    else:
-        users = list(df.index)
-    langs = list(df.drop('repos', axis=1).columns)
+        data = pd.read_csv(user_file)
+        users = [x for x in users if x not in data['user']]
     # Pull all the data
     new_data = get_users(users, langs)
-    # Add the user's repos
     new_data = pd.DataFrame.from_dict(new_data, orient='index')
-    new_data = new_data.join(df.loc[:, 'repos'])
+    print(new_data.head())
+    # Create list of repos for each user
+    user_repos = df.groupby('user')[NAME_COLUMN].apply(lambda x: ','.join(x))
+    new_data = new_data.join(user_repos)
     # Append the data if possible
     if isfile(user_file): 
         new_data = pd.concat([data, new_data])
     # Save the data
-    new_data.to_csv(user_file)
+    new_data.to_csv(user_file, index=False)
 
 def seriesSum(s):
     total = 0
@@ -58,7 +56,7 @@ def seriesSum(s):
     return total
 
 def normalize_user_data(user_file=USER_FILE):
-    df = pd.read_csv(user_file, index_col='Unnamed: 0')
+    df = pd.read_csv(user_file)
     # * Normalize language strengths
     df = df[df.apply(lambda x: True if seriesSum(x) else False, axis=1)]
     data = df.drop('repos', axis=1)
@@ -74,7 +72,7 @@ def normalize_user_data(user_file=USER_FILE):
 
 
 if __name__ == "__main__":
-    # pull_user_data()
-    normalize_user_data()
+    pull_user_data()
+    # normalize_user_data()
 
     # MESSED UP https://api.github.com/repos/AArnott/Clue/commits

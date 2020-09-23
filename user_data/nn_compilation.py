@@ -1,6 +1,5 @@
 import pandas as pd
-from OpenSource.general import NN_OUTPUT, REPO_FILE, USER_FILE, REPO_TO_USER_FILE
-
+from OpenSource.general import NN_OUTPUT, REPO_FILE, USER_FILE, USER_LIST, NAME_COLUMN
 
 def encode_indices(indices: iter) -> list:
     vect = str(indices.pop(0))
@@ -8,9 +7,9 @@ def encode_indices(indices: iter) -> list:
         vect += f',{index}'
     return vect
 
-def encode_NN_output(user_file=REPO_TO_USER_FILE, repo_file=REPO_FILE, new_file=NN_OUTPUT):
-    user_data = pd.read_csv(user_file, index_col='Unnamed: 0')
-    repos = pd.read_csv(repo_file)['repo_name'].unique()
+def encode_NN_output(user_file=USER_LIST, repo_file=REPO_FILE, new_file=NN_OUTPUT):
+    user_data = pd.read_csv(user_file)['user']
+    repos = pd.read_csv(repo_file)[NAME_COLUMN].unique()
 
     # Encoded repos into indices
     repo_translation = {repo: i for i, repo in enumerate(repos)}

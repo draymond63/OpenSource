@@ -2,11 +2,14 @@ import requests
 import json
 from time import sleep
 
-REPO_FILE = 'storage/pulled_repos.csv'
-USER_LIST = 'storage/repo_users.csv'
-USER_FILE = 'storage/pulled_users_info.csv'
-SECRET_FILE = 'storage/secrets.json'
+STR_PATH = './storage/'
+REPO_FILE = STR_PATH + 'pulled_repos.csv'
+USER_LIST = STR_PATH + 'repo_users.csv'
+USER_FILE = STR_PATH + 'pulled_users_info-2.0.csv'
+NN_OUTPUT = STR_PATH + 'nn_compl_output.csv'
+SECRET_FILE = STR_PATH + 'secrets.json'
 
+NAME_COLUMN = 'repo_name'
 CONTRIBUTORS_COLUMN = 'contributors'
 
 with open(SECRET_FILE) as f:
