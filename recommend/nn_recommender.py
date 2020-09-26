@@ -39,7 +39,8 @@ class NeuralRecommender():
             batch_size=64, 
             shuffle=True, 
             epochs=epochs,
-            callbacks=callbacks
+            callbacks=callbacks,
+            verbose=0
         )
 
     def save(self, file_name=NN_WEIGHTS):
@@ -59,7 +60,7 @@ def create_model(inp=USER_FILE, out=NN_OUTPUT):
 
     # Remove data that isn't being fed into the model
     inp = inp.drop(USER_NAME_COLUMN, axis=1)
-    out = out[USER_REPOS_COLUMN].values # Series to np.array
+    out = out[USER_REPOS_COLUMN]
     # Convert the indices to multi hot-encoded vectors
     out = out.apply(lambda x: [int(i) for i in x.split(',')])
     out = MultiLabelBinarizer().fit_transform(out)
@@ -75,7 +76,7 @@ def create_model(inp=USER_FILE, out=NN_OUTPUT):
     # Build the model and train it!
     print('TRAINING')
     rec = NeuralRecommender(input_size=num_inputs, output_size=num_repos)
-    rec.train(inp, out)
+    rec.train(inp.values, out)
     # Save the weights
     rec.save()
 
