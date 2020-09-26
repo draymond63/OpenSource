@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.preprocessing import MultiLabelBinarizer
 
-from OpenSource.general import USER_FILE, NN_OUTPUT, USER_LIST
+from OpenSource.general import USER_FILE, NN_OUTPUT, NN_WEIGHTS
 from OpenSource.general import REPO_NAME_COLUMN, USER_NAME_COLUMN, USER_REPOS_COLUMN
 
 from os import environ
@@ -31,7 +31,7 @@ class NeuralRecommender():
         self.model.build()
         self.model.summary()
 
-    def train(self, i, o, epochs=500):
+    def train(self, i, o, epochs=5000):
         callbacks = (
             EarlyStopping(patience=epochs//10, monitor=self.metric, restore_best_weights=True),
         )
@@ -41,6 +41,9 @@ class NeuralRecommender():
             epochs=epochs,
             callbacks=callbacks
         )
+
+    def save(self, file_name=NN_WEIGHTS):
+        self.model.save_weights(file_name)
 
 def create_model(inp=USER_FILE, out=NN_OUTPUT):
     # Input training data
@@ -56,7 +59,7 @@ def create_model(inp=USER_FILE, out=NN_OUTPUT):
 
     # Remove data that isn't being fed into the model
     inp = inp.drop(USER_NAME_COLUMN, axis=1)
-    out = out[USER_REPOS_COLUMN]
+    out = out[USER_REPOS_COLUMN].values # Series to np.array
     # Convert the indices to multi hot-encoded vectors
     out = out.apply(lambda x: [int(i) for i in x.split(',')])
     out = MultiLabelBinarizer().fit_transform(out)
@@ -72,7 +75,9 @@ def create_model(inp=USER_FILE, out=NN_OUTPUT):
     # Build the model and train it!
     print('TRAINING')
     rec = NeuralRecommender(input_size=num_inputs, output_size=num_repos)
-    rec.train(inp.values, out)
+    rec.train(inp, out)
+    # Save the weights
+    rec.save()
 
 if __name__ == "__main__":
     create_model()

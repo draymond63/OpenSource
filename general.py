@@ -7,6 +7,7 @@ REPO_FILE = STR_PATH + 'pulled_repos.csv'
 USER_LIST = STR_PATH + 'repo_users.csv'
 USER_FILE = STR_PATH + 'pulled_users_info-2.0.csv'
 NN_OUTPUT = STR_PATH + 'nn_compl_output.csv'
+NN_WEIGHTS = STR_PATH + 'nn_weights.h5'
 SECRET_FILE = STR_PATH + 'secrets.json'
 
 REPO_NAME_COLUMN = 'repo_name'

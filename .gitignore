@@ -1,5 +1,6 @@
 *.csv
 *.json
+*.h5
 *.txt
 *__pycache__
 .vscode
