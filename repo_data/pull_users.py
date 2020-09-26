@@ -1,7 +1,7 @@
 import pandas as pd
 from time import sleep
 from tqdm import tqdm
-from OpenSource.general import pull_json, REPO_FILE, CONTRIBUTORS_COLUMN, NAME_COLUMN
+from OpenSource.general import pull_json, REPO_FILE, CONTRIBUTORS_COLUMN, REPO_NAME_COLUMN
 
 def get_contributors(repo_name, pause=0, ret_string=True):
     if not repo_name:
@@ -23,7 +23,7 @@ def get_contributors(repo_name, pause=0, ret_string=True):
 def append_contributors(repo_file=REPO_FILE):
     df = pd.read_csv(repo_file)
     # Iterate through the repos, getting the contributors
-    contributors = [get_contributors(name) for name in tqdm(df[NAME_COLUMN])]
+    contributors = [get_contributors(name) for name in tqdm(df[REPO_NAME_COLUMN])]
     # Merge in the new data
     contributors = pd.Series(contributors, name=CONTRIBUTORS_COLUMN)
     df = df.join(contributors)

@@ -1,5 +1,6 @@
 import pandas as pd
-from OpenSource.general import NN_OUTPUT, REPO_FILE, USER_FILE, USER_LIST, NAME_COLUMN
+from OpenSource.general import NN_OUTPUT, REPO_FILE, USER_FILE, USER_LIST
+from OpenSource.general import REPO_NAME_COLUMN, USER_NAME_COLUMN, USER_REPOS_COLUMN
 
 def encode_indices(indices: iter) -> list:
     vect = str(indices.pop(0))
@@ -7,29 +8,28 @@ def encode_indices(indices: iter) -> list:
         vect += f',{index}'
     return vect
 
-def encode_NN_output(user_file=USER_LIST, repo_file=REPO_FILE, new_file=NN_OUTPUT):
-    user_data = pd.read_csv(user_file)['user']
-    repos = pd.read_csv(repo_file)[NAME_COLUMN].unique()
+def encode_NN_output(user_file=USER_LIST, new_file=NN_OUTPUT):
+    data = pd.read_csv(user_file)
+    unique_repos = data[REPO_NAME_COLUMN].unique()
 
     # Encoded repos into indices
-    repo_translation = {repo: i for i, repo in enumerate(repos)}
+    repo_translation = {repo: i for i, repo in enumerate(unique_repos)}
 
-    repos_encoded = {}
-    for user, user_repos in zip(user_data.index, user_data['repos']):
-        user_repos = user_repos.split(',')
+    repos_encoded = {USER_NAME_COLUMN: [], USER_REPOS_COLUMN: []}
+    # Iterate through the users
+    for user, user_repos in data.groupby(USER_NAME_COLUMN):
         # Convert the repos to indices
-        user_repos = [repo_translation[r] for r in user_repos]
-        user_repos = encode_indices(user_repos)
-        repos_encoded[user] = user_repos
+        user_repos = user_repos[REPO_NAME_COLUMN] # Extract wanted column
+        user_repos = [repo_translation[r] for r in user_repos] # Convert to indices
+        user_repos = encode_indices(user_repos) # Stringify
+        # Add the data
+        repos_encoded[USER_NAME_COLUMN].append(user)
+        repos_encoded[USER_REPOS_COLUMN].append(user_repos)
 
-    final_df = pd.DataFrame.from_dict(repos_encoded, orient='index')
-    # Rename the column
-    final_df.columns = ['repo_encoded'] 
     # Save
-    final_df.to_csv(new_file)
+    final_df = pd.DataFrame(repos_encoded)
     print(final_df.head())
-
-
+    final_df.to_csv(new_file, index=False)
 
 
 if __name__ == "__main__":

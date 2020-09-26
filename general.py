@@ -9,8 +9,10 @@ USER_FILE = STR_PATH + 'pulled_users_info-2.0.csv'
 NN_OUTPUT = STR_PATH + 'nn_compl_output.csv'
 SECRET_FILE = STR_PATH + 'secrets.json'
 
-NAME_COLUMN = 'repo_name'
+REPO_NAME_COLUMN = 'repo_name'
 CONTRIBUTORS_COLUMN = 'contributors'
+USER_REPOS_COLUMN = 'repos'
+USER_NAME_COLUMN = 'user'
 
 with open(SECRET_FILE) as f:
     secrets = json.load(f)

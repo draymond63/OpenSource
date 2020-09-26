@@ -1,4 +1,4 @@
-from OpenSource.general import pull_json, REPO_FILE, NAME_COLUMN
+from OpenSource.general import pull_json, REPO_FILE, REPO_NAME_COLUMN
 from tqdm import tqdm
 import pandas as pd
 
@@ -55,7 +55,7 @@ def get_repo_data(repo_file=REPO_FILE):
     data = pd.DataFrame.from_dict(data, orient='index')
     # Shift the index to a regular column
     data.reset_index(inplace=True)
-    data.rename(columns={'index': NAME_COLUMN}, inplace=True)
+    data.rename(columns={'index': REPO_NAME_COLUMN}, inplace=True)
     print(data.head())
     data.to_csv(repo_file, index=False)
 

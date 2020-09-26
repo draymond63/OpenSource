@@ -1,5 +1,5 @@
 import pandas as pd
-from OpenSource.general import pull_json, USER_FILE, NN_OUTPUT, NAME_COLUMN
+from OpenSource.general import pull_json, USER_FILE, NN_OUTPUT, REPO_NAME_COLUMN
 
 from os import environ
 environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -26,7 +26,7 @@ class NeuralRecommender():
 def create_model(inp=USER_FILE, out=NN_OUTPUT):
     # Input training data
     inp = pd.read_csv(inp)
-    inp = inp.drop(NAME_COLUMN, axis=1)
+    inp = inp.drop(REPO_NAME_COLUMN, axis=1)
     # Output training data
     out = pd.read_csv(out, squeeze=True)
     # convert outputs from string to list
