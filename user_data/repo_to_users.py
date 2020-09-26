@@ -20,7 +20,7 @@ def repos_to_users(repo_file=REPO_FILE, new_file=USER_LIST, user_col=CONTRIBUTOR
     user_data = pd.DataFrame(user_data)
     user_data.drop_duplicates(inplace=True)
     
-    user_data.to_csv(new_file)
+    user_data.to_csv(new_file, index=False)
     print(user_data.head())
     
     # Create a string of repos for each user

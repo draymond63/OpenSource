@@ -2,22 +2,29 @@ from OpenSource.general import pull_json, REPO_FILE, NAME_COLUMN
 from tqdm import tqdm
 import pandas as pd
 
+# * Example
+# https://api.github.com/search/repositories?q=Python+good-first-issues:>=50&per_page:1&sort:forks
+# * Info
 # https://docs.github.com/en/github/searching-fnformation-on-github/searching-for-repositories
 # https://docs.github.com/en/rest/reference/search#search-repositories
-def get_repo_query(key, language=None, forks='>=200', sort='forks', pushed='>=2020-09-01', help_wanted_issues='>=5', good_first_issues='>=5', per_page=1000):   
-    q = {
-        'q': key,
-        'language': language,
-        'sort': sort,
-        'forks': forks,
-        'fork': False,
-        'archived': False,
-        'pushed': pushed,
-        'help-wanted-issues': help_wanted_issues,
+def get_repo_query(key, language=None, forks='>=200', pushed='>=2020-09-01', help_wanted_issues='>=0', good_first_issues='>=1', sort='forks', per_page=1000):
+    q_args = {
         'good-first-issues': good_first_issues,
-        'per_page': per_page
+        'help-wanted-issues': help_wanted_issues,
+        'forks': forks,
+        'archived': 'false', # This should be in quotes so it's included in the body
+        'pushed': pushed,
+        'language': language,
     }
-    response = pull_json('https://api.github.com/search/repositories', query=q, headers={'Accept': 'application/vnd.github.v3+json'})
+    q_req = f'q={key}'
+
+    for arg in q_args:
+        if q_args[arg]:
+            q_req += f'+{arg}:{q_args[arg]}'
+    
+    body = f'{q_req}&per_page:{per_page}&sort:{sort}'
+    response = pull_json(f"https://api.github.com/search/repositories?{body}", headers={'Accept': 'application/vnd.github.v3+json'})
+
     # Extract useful info
     if response:
         data = {}
@@ -29,7 +36,7 @@ def get_repo_query(key, language=None, forks='>=200', sort='forks', pushed='>=20
             }
         return data
     else:
-        raise Warning(f'response was faulty: {response}')
+        raise Warning(f'response was faulty - "{response}"')
 
 def get_repo_data(repo_file=REPO_FILE):
     langs = [
@@ -54,3 +61,6 @@ def get_repo_data(repo_file=REPO_FILE):
 
 if __name__ == "__main__":
     get_repo_data()
+
+    r = get_repo_query('Python', help_wanted_issues=None)
+    print(r)
