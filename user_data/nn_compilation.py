@@ -26,7 +26,7 @@ def encode_NN_output(user_file=USER_LIST, new_file=NN_OUTPUT):
         repos_encoded[USER_NAME_COLUMN].append(user)
         repos_encoded[USER_REPOS_COLUMN].append(user_repos)
 
-    # Save
+    # Save the data
     final_df = pd.DataFrame(repos_encoded)
     print(final_df.head())
     final_df.to_csv(new_file, index=False)

@@ -78,5 +78,5 @@ def normalize_user_data(user_file=USER_FILE):
     data.to_csv(USER_FILE, index=False)
 
 if __name__ == "__main__":
-    # pull_user_data()
+    pull_user_data()
     normalize_user_data()

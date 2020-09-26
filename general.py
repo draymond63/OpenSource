@@ -17,21 +17,9 @@ USER_NAME_COLUMN = 'user'
 with open(SECRET_FILE) as f:
     secrets = json.load(f)
 
-def pull_json(link, headers=None, redo=False, delay=30):
+def pull_json(link, headers=None):
     # Initiate the request
     r = requests.get(link, headers=headers, auth=('user', secrets['token']))
-    # Make sure data is okay
-    if redo:
-        # Try again a few times
-        timeout = 3
-        while (not r.ok and timeout):
-            print(link)
-            sleep(delay)
-            r = requests.get(link, headers=headers, auth=('user', secrets['token']))
-            timeout -= 1
-        # Check if the timeout failed
-        if timeout == 0:
-            return None
     if r.ok:
         return json.loads(r.content)
     else:
