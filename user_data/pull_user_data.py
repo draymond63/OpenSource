@@ -1,10 +1,12 @@
 import pandas as pd
 from tqdm import tqdm
 from os.path import isfile
-from OpenSource.general import pull_json, USER_FILE, USER_LIST, CONTRIBUTORS_COLUMN, REPO_NAME_COLUMN, USER_REPOS_COLUMN, USER_NAME_COLUMN
+from OpenSource.general import pull_json
+from OpenSource.general import USER_FILE, USER_LIST, LANG_MAXS
+from OpenSource.general import CONTRIBUTORS_COLUMN, REPO_NAME_COLUMN, USER_REPOS_COLUMN, USER_NAME_COLUMN
 
 # * Get wanted data from user repo request
-def extract_wanted(repos: list, langs: list) -> list:
+def extract_wanted(repos: list, langs: list) -> dict:
     data = {l: 0 for l in langs}
     for repo in repos:
         if not repo['fork'] and repo['language'] in langs:
@@ -12,13 +14,16 @@ def extract_wanted(repos: list, langs: list) -> list:
             data[repo['language']] += repo['size']
     return data
 
+def get_user(user, langs) -> dict:
+    userItem = pull_json(f'https://api.github.com/users/{user}/repos') 
+    return extract_wanted(userItem, langs)
+
 def get_users(users, langs):
     user_data = {}
     # Get info on each user
     for user in tqdm(users):
         try:
-            userItem = pull_json(f'https://api.github.com/users/{user}/repos') 
-            user_data[user] = extract_wanted(userItem, langs)
+            user_data[user] = get_user(user, langs)
         # Drop out early if there's an error
         except:
             print("SAVING EARLY")
@@ -53,30 +58,26 @@ def pull_user_data(repo_info=USER_LIST, user_file=USER_FILE, overwrite=False):
     print(new_data.head())
     new_data.to_csv(user_file, index=False)
 
-
 # * Normalization of data
 def normalize_user_data(user_file=USER_FILE):
     df = pd.read_csv(user_file)
-    data = df.drop([USER_REPOS_COLUMN, USER_NAME_COLUMN], axis=1)
+    
+    # ! No one uses hascal?
+    data = df.drop([USER_REPOS_COLUMN, USER_NAME_COLUMN, 'Hascal'], axis=1)
     # Drop all rows that have no data on the user
     df = df[data.sum(axis=1) != 0]
 
-    # Normalize language strengths
-    count = {}
-    for i, user in data.iterrows():
-        count[i] = user.sum()
-        data.loc[i] = user.div(count[i])
-    # Normalize total repo across users
-    count = pd.Series(count, name='repo_total')
-    print("Repo Max:", count.max()) # 12594379 KB
-    count /= count.max()
+    # Find the strengths
+    lang_max = data.max()
+    lang_max.to_csv(LANG_MAXS)
 
+    # Normalize language strengths
+    data = data.div(lang_max)
     # Reattach the repos and counts
-    data = data.join(count)
     data = data.join(df[USER_REPOS_COLUMN])
     print(data.head())
     data.to_csv(USER_FILE, index=False)
 
 if __name__ == "__main__":
-    pull_user_data()
+    # pull_user_data()
     normalize_user_data()
